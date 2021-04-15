@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %} Index {% endblock %}
+{% block content %}
+<body>
+<div class="content-wrapper">
+
+  <div class="topdata">
+    <div class="date">
+      <span>{{date}}</span>
+    </div>
+
+    <div class="location">
+      <span>{{location}}</span>
+    </div>
+  </div>
+  <table style="width:100%">
+    <tr>
+      <th>Moonphase</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>10</th>
+      <th>11</th>
+      <th>12</th>
+      <th>13</th>
+      <th>14</th>
+    </tr>
+    <tr>
+      <td>Temperature</td>
+      <td>INSERT TEMP HOUR 1</td>
+      <td>INSERT TEMP HOUR 2</td>
+    </tr>
+    <tr>
+      <td>Wind Speed</td>
+      <td>INSERT SPEED HOUR 1</td>
+      <td>INSERT SPEED HOUR 2</td>
+    </tr>
+  </table>
+</div>
+</body>
+{% endblock %}
+

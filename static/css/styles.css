@@ -1,0 +1,43 @@
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    font-family: "Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.content-wrapper {
+    max-width: 1000px;
+    margin: auto;
+}
+
+table, th, td {
+    border: 1px solid lightgray;
+    border-collapse: collapse;
+    width: 10%;
+}
+
+.date {
+    height: 90px;
+    width: 7%;
+    min-width: 50px;
+    float: left;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 10px 0px;
+    margin: 0px 2px 5px 0px;
+    background: #104377;
+    overflow: hidden;
+
+}
+
+.location {
+    margin: auto;
+    float: left;
+}
+
+.topdata {
+    height: 100px;
+}
