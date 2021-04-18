@@ -1,0 +1,167 @@
+Metadata-Version: 2.1
+Name: pylunar
+Version: 0.6.0
+Summary: Information for completing the Astronomical League's Lunar and Lunar II observing programs.
+Home-page: https://github.com/mareuter/pylunar
+Author: Michael Reuter
+Author-email: mareuternh@gmail.com
+License: BSD 3-Clause License
+Keywords: pylunar
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Requires-Dist: ephem
+Requires-Dist: pytz
+
+=============================
+Python Lunar
+=============================
+
+.. |license| image:: https://img.shields.io/pypi/l/pylunar.svg
+   :target: http://opensource.org/licenses/BSD
+   :alt: BSD License
+
+.. |version| image:: http://img.shields.io/pypi/v/pylunar.svg
+   :target: https://pypi.python.org/pypi/pylunar
+   :alt: Software Version
+
+.. |github| image:: https://github.com/mareuter/pylunar/workflows/Python%20package/badge.svg
+  :target: https://github.com/mareuter/pylunar
+  :alt: Github build status
+
+.. |python| image:: https://img.shields.io/pypi/pyversions/pylunar.svg
+  :target: https://pypi.python.org/pypi/pylunar
+  :alt: Supported Python
+
+.. |docs| image:: https://readthedocs.org/projects/pylunar/badge/?version=latest
+  :target: https://pylunar.readthedocs.io
+  :alt: Readthedocs status
+
+|license| |python| |version| |github| |docs|
+
+Information for completing the Astronomical League's Lunar and Lunar II observing programs.
+
+
+Features
+--------
+
+* Offer moon information based on location and date/time.
+
+
+
+
+Documentation
+-------------
+
+The full documentation is at http://pylunar.rtfd.org.
+
+
+
+History
+-------
+
+0.6.0 (2020-04-07)
+++++++++++++++++++
+
+* Drop Python 2 and 3.4 and 3.5 support
+* Add Python 3.7 and 3.8 support
+* Change to 3-clause BSD license
+* Switch to pytest from tox
+* Add Github workflows for build and package upload
+* Remove Travis
+
+0.5.1 (2018-04-20)
+++++++++++++++++++
+
+* Add changelog updates
+
+0.5.0 (2018-04-20)
+++++++++++++++++++
+
+* LunarFeature additions
+
+  * Latitude and Longitude ranges
+  * Feature angle
+* MoonInfo additions
+
+  * Libration phase angle
+  * Libration visibility check
+  * Updated is_visible to use libration visibility check
+
+0.4.1 (2017-05-30)
+++++++++++++++++++
+
+* Corrected moon state after rise/set function call
+* Made landing sites always visible once visible
+
+0.4.0 (2017-05-28)
+++++++++++++++++++
+
+* Added landing sites to feature database
+* Expanding LunarFeature content
+* MoonInfo object additions
+
+  * right ascension and declination
+  * solar elongation
+  * earth distance
+  * rise, transit and set times
+  * angular size
+  * magnitude
+  * sub-solar latitude
+
+0.3.1 (2017-05-15)
+++++++++++++++++++
+
+* Ensure feature DB included in package
+
+0.3.0 (2017-05-15)
+++++++++++++++++++
+
+* MoonInfo object additions
+
+  * time of day
+  * is feature visible
+
+* LunarFeatureContainer object changes
+
+  * Made constructor club related
+  * Load call can check if feature is visible using MoonInfo instance
+
+0.2.1 (2017-04-20)
+++++++++++++++++++
+
+* Changed mechanism to determine phase name
+
+0.2.0 (2017-04-16)
+++++++++++++++++++
+
+* MoonInfo object additions
+
+  * phase name
+  * time from new moon
+  * time to new moon
+  * time to full moon
+
+0.1.0 (2016-07-18)
+++++++++++++++++++
+
+* MoonInfo object that provides basic lunar information
+
+  * age
+  * altitude
+  * azimuth
+  * colongitude
+  * fractional phase
+  * libration latitude
+  * libration longitude
+  * next four lunar phases
+
+
+

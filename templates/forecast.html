@@ -1,48 +1,101 @@
 {% extends "base.html" %}
 {% block title %} Index {% endblock %}
 {% block content %}
-<body>
-<div class="content-wrapper">
 
-  <div class="topdata">
-    <div class="date">
-      <span>{{date}}</span>
+<body>
+  <div class="content-wrapper">
+
+    <form action="/" method="POST">
+      <label for="city">Enter a city</label>
+      <input type="text" name="city" id="city"/>
+      <label for="state">Enter a state</label>
+      <input type="text" name="state" id="state"/><br>
+      <input type="submit" value="Submit" />
+    </form>
+
+    <span>{{location}}</span>
+    <div class="topdata">
+
+      <div class="date">
+        <span>{{date}}</span>
+      </div>
+
+
+
     </div>
 
-    <div class="location">
-      <span>{{location}}</span>
+    <div style="overflow:scroll">
+      <table style="width:100%" class="forecast">
+
+        <!-- Moon phase and Hour -->
+        <tr id="top_row">
+          <th class="forecast_col" style="border: 1px solid black">{{phase}}</th>
+          {% for key in darksky %}
+            <th style="color:white; text-align: center" id="hour{{key[11:13]}}">{{ key[10:13] }}</th>
+          {% endfor %}
+        </tr>
+
+        <!-- Temperature -->
+        <tr>
+          <td class="forecast_col" style="border: 1px solid black">Temperature</td>
+          {% for key in darksky %}
+            <td id="temp{{key[11:13]}}"> {{ darksky[key].temperature }}</td>
+          {% endfor %}
+        </tr>
+
+        <!-- Wind Speed -->
+        <tr>
+          <td class="forecast_col" style="border: 1px solid black">Wind Speed (mph) </td>
+          {% for key in darksky %}
+            <td id="speed{{key[11:13]}}"> {{ darksky[key].windSpeed }}</td>
+          {% endfor %}
+        </tr>
+
+        <!-- Wind Direction -->
+        <tr>
+          <td class="forecast_col" style="border: 1px solid black">Wind Direction</td>
+          {% for element in wind_directions %}
+            <td id="{{wind_direction_ids[loop.index0]}}"> {{ element }}</td>
+          {% endfor %}
+        </tr>
+
+        <!-- Cloud Coverage -->
+        <tr>
+          <td class="forecast_col" style="border: 1px solid black">Cloud Coverage</td>
+          {% for key in darksky %}
+            <td id="cover{{key[11:13]}}"> {{ darksky[key].cloudCover }}</td>
+          {% endfor %}
+        </tr>
+
+
+      </table>
     </div>
   </div>
-  <table style="width:100%">
-    <tr>
-      <th>Moonphase</th>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-      <th>4</th>
-      <th>5</th>
-      <th>6</th>
-      <th>7</th>
-      <th>8</th>
-      <th>9</th>
-      <th>10</th>
-      <th>11</th>
-      <th>12</th>
-      <th>13</th>
-      <th>14</th>
-    </tr>
-    <tr>
-      <td>Temperature</td>
-      <td>INSERT TEMP HOUR 1</td>
-      <td>INSERT TEMP HOUR 2</td>
-    </tr>
-    <tr>
-      <td>Wind Speed</td>
-      <td>INSERT SPEED HOUR 1</td>
-      <td>INSERT SPEED HOUR 2</td>
-    </tr>
-  </table>
-</div>
 </body>
+
+{% for key in darksky %}
+  <!-- Script to colorize the hour cells -->
+  <script>
+    if ("{{darksky[key].windSpeed}}" > 8 || "{{darksky[key].cloudCover}}" > 0.20) {
+      document.getElementById("hour{{key[11:13]}}").style.backgroundColor = "red";
+    }
+    else if ("{{darksky[key].windSpeed}}" < 8 && "{{darksky[key].windSpeed}}" > 6 ||
+             "{{darksky[key].cloudCover}}" < 0.20 && "{{darksky[key].cloudCover}}" > 0.10){
+      document.getElementById("hour{{key[11:13]}}").style.backgroundColor = "orange";
+    }
+    else {
+      document.getElementById("hour{{key[11:13]}}").style.backgroundColor = "green";
+    }
+  </script>
+{% endfor %}
+
+  <script>
+    document.getElementById("hour{{hours[0]}}").style.border = "2px solid cornflowerblue";
+    document.getElementById("temp{{hours[0]}}").style.border = "2px solid cornflowerblue";
+    document.getElementById("speed{{hours[0]}}").style.border = "2px solid cornflowerblue";
+    document.getElementById("direction{{hours[0]}}").style.border = "2px solid cornflowerblue";
+    document.getElementById("cover{{hours[0]}}").style.border = "2px solid cornflowerblue";
+  </script>
+
 {% endblock %}
 
