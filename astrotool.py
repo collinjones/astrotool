@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 from datetime import timedelta, date
 from darksky import forecast
@@ -13,7 +15,11 @@ app = Flask(__name__)
 app.secret_key = "hello"
 app.permanent_session_lifetime = timedelta(days=5)
 
-default_loc = "Broomfield, Colorado"
+# Setup variables
+default_loc = "Broomfield, Colorado"  # Default location
+today = dt.today()  # Current date
+current_hour = today.hour
+ts = int(dt.now().timestamp())  # Time stamp of current day
 
 
 @app.route("/", methods=['POST', 'GET'])
@@ -144,12 +150,90 @@ def set_up_forecast():
 
 
 def get_weather_data(lat, lng, request_type='current'):
+    """
+    Takes in lat, lng, and request type and
+        return a darksky api json dictionary.
+
+    :param lat:
+    :param lng:
+    :param request_type:
+    :return:
+    """
+
+    response = None
+
     if request_type == 'current':
-        print(f"https://api.darksky.net/forecast/{api_keys.darksky_apikey}/{lat},{lng},{dt.timestamp}")
+        response = requests.get(
+            f"https://api.darksky.net/forecast/{api_keys.darksky_apikey}/{lat},{lng}?exclude=currently,minutely,daily,flags&units=us")
+
     elif request_type == 'midnight':
-        today = date.today()
-        formatted_midnight = f"[{today.year}]-[{today.month}]-[{today.day}]T[00]:[00]:[00]"
-        print(f"https://api.darksky.net/forecast/{api_keys.darksky_apikey}/{lat},{lng},{formatted_midnight}")
+        # Create a datetime object set at midnight (default settings)
+        response = requests.get(f"https://api.darksky.net/forecast/{api_keys.darksky_apikey}/{lat},{lng},{ts}?exclude=currently,minutely,daily,flags&units=us")
+        return format_midnight_forcast(response)
+
+    elif request_type == 'midday':
+        return format_midday_forecast(lat, lng)
+
+
+def format_midnight_forcast(response):
+    """
+    Takes in a DarkSky API response
+    Returns a formatted dictionary
+
+    :param response:
+    :return:
+    """
+    # Get the DarkSky TimeMachine response and formatted json dictionary
+    historical_json = response.json()['hourly']['data']
+    for i in range(0, 24):
+         = historical_json[i+12]
+
+
+
+
+def format_midday_forecast(lat, lng):
+    """
+    Takes in historical and current darksky data
+    returns the data in a dictionary, formatted so that the first key is midday, last key is 23 hours after that.
+
+    :param lng:
+    :param lat:
+    :return:
+    """
+    # current_response = requests.get(f"https://api.darksky.net/forecast/{api_keys.darksky_apikey}/"
+    #                                 f"{lat},{lng}?exclude=currently,minutely,daily,flags&units=us")
+    # current_json = current_response.json()['hourly']['data']
+    formatted_forecast = {}
+
+    # Get the DarkSky TimeMachine response and formatted json dictionary
+    midnight_response = requests.get(f"https://api.darksky.net/forecast/{api_keys.darksky_apikey}/"
+                                     f"{lat},{lng},{ts}?exclude=currently,minutely,daily,flags&units=us")
+    historical_json = midnight_response.json()['hourly']['data']
+
+    for i in range(0, 24):
+        dt_object = dt.fromtimestamp(historical_json[i]['time'])
+        formatted_forecast[str(dt_object)] = historical_json[i]
+
+    return formatted_forecast
+
+    # else:
+    #
+    #     # Get the time in hours (int) that it would take to hit 12:00
+    #     midday_offset = 12 - current_hour
+    #
+    #     # From midday of the current day to midday of the next day,
+    #     #   create the new keys with the respective data for each hour.
+    #     # Each key represents an hour.
+    #     for i in range(midday_offset, 24 + midday_offset):
+    #
+    #         # Get the timestamp and convert it to a human readable date
+    #         ts_current = current_json[i]['time']
+    #         dt_obj = dt.fromtimestamp(ts_current)
+    #
+    #         # Assign the keys and data to the dictionary, starting at midday
+    #         formatted_forecast[dt_obj.hour] = current_json[i]
+    #
+    # return formatted_forecast
 
 
 if __name__ == '__main__':
