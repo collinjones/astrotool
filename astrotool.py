@@ -5,6 +5,7 @@ from opencage.geocoder import OpenCageGeocode
 from datetime import datetime as dt
 import calendar, requests, api_keys, socket, pylunar, almanac, utilities as u
 import timezonefinder, pytz
+import requests
 
 geocoder = OpenCageGeocode(api_keys.open_cage_apikey)
 
@@ -26,7 +27,7 @@ def astro_forecast():
     return render_template("forecast.html", **context)
 
 
-def create_hourly_dict(ds_forecast, geocoder_data):
+def create_hourly_dict(ds_forecast):
     """
     Returns a dictionary out of hourly forecast data
 
@@ -36,51 +37,12 @@ def create_hourly_dict(ds_forecast, geocoder_data):
     # Create empty dictionary
     hourly_dict = {}
 
-    tf = timezonefinder.TimezoneFinder()
-    timezone_str = tf.certain_timezone_at(lat=geocoder_data[0]['geometry']['lat'],
-                                          lng=geocoder_data[0]['geometry']['lng'])
-    if timezone_str is None:
-        print("Could not find time zone")
-    else:
-        timezone = pytz.timezone(timezone_str)
-        datet = dt.utcnow()
-
     # Create a 24 hour dictionary starting from the current hour using the time as the keys
     for x in range(0, 24):
         dt_object = dt.fromtimestamp(ds_forecast.hourly[x].time)
         hourly_dict[str(dt_object)] = ds_forecast.hourly[x]
 
     return hourly_dict
-
-
-def analyze_hourly_results(hourly_forecast, darksky_forecast):
-    """
-    Takes in the results of a darksky API call
-    Analyzes the data and determines whether or not it is a good time for astrophotography over a 24 hour period
-
-    :param hourly_forecast:
-    :param darksky_forecast:
-    :return:
-    """
-    # Get moon phase
-    moon_phase = darksky_forecast.daily.data[0].moonPhase
-    print("TONIGHT'S MOON PHASE: " + u.moon_phase(moon_phase))
-
-    for key in hourly_forecast:
-        print(key)
-        print("CLOUD COVERAGE: " + str(hourly_forecast[key].cloudCover))
-        print("WIND SPEED: " + str(hourly_forecast[key].windSpeed))
-        print("WIND DIRECTION: " + u.wind_direction(hourly_forecast[key].windBearing))
-
-        if hourly_forecast[key].cloudCover > 0.10 or hourly_forecast[key].windSpeed > 3.5:
-            if hourly_forecast[key].cloudCover > 0.10 and hourly_forecast[key].windSpeed <= 3.5:
-                print("The wind may be reasonable, but there are too many clouds outside for astrophotography\n")
-            elif hourly_forecast[key].windSpeed > 3.5 and hourly_forecast[key].cloudCover <= 0.10:
-                print("There may be almost no clouds, but it is too windy for astrophotography\n")
-            else:
-                print("The wind is too strong and there are too many clouds out!\n")
-        else:
-            print("It's a good night for astrophotography :)\n")
 
 
 def get_city_from_locational_data(loc_data):
@@ -133,9 +95,18 @@ def set_up_forecast():
         loc = default_loc
         geocoder_data = geocoder.geocode(default_loc)
 
+    # tz = pytz.timezone(geocoder_data[0]['annotations']['timezone']['name'])
+    # tz_now = dt.now(tz)
+
+    lat = geocoder_data[0]['geometry']['lat']
+    lng = geocoder_data[0]['geometry']['lng']
+
     # Get darksky data
-    darksky_data = forecast(key=api_keys.darksky_apikey, latitude=geocoder_data[0]['geometry']['lat'],
-                            longitude=geocoder_data[0]['geometry']['lng'], time=)
+    # darksky_data = forecast(key=api_keys.darksky_apikey, latitude=geocoder_data[0]['geometry']['lat'],
+    #                         longitude=geocoder_data[0]['geometry']['lng'])
+    darksky_data = get_weather_data(lat, lng, 'midnight')
+
+    print(darksky_data.hourly[0].time)
 
     # Get darksky hourly dictionary
     hourly_forecast = create_hourly_dict(darksky_data)
@@ -170,6 +141,15 @@ def set_up_forecast():
         'lunar_times': lunar_set_rise,
         'hours': hours
     }
+
+
+def get_weather_data(lat, lng, request_type='current'):
+    if request_type == 'current':
+        print(f"https://api.darksky.net/forecast/{api_keys.darksky_apikey}/{lat},{lng},{dt.timestamp}")
+    elif request_type == 'midnight':
+        today = date.today()
+        formatted_midnight = f"[{today.year}]-[{today.month}]-[{today.day}]T[00]:[00]:[00]"
+        print(f"https://api.darksky.net/forecast/{api_keys.darksky_apikey}/{lat},{lng},{formatted_midnight}")
 
 
 if __name__ == '__main__':
