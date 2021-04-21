@@ -1,5 +1,6 @@
+import time
 from pprint import pprint
-
+from collections import OrderedDict
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 from datetime import timedelta, date
 from darksky import forecast
@@ -7,7 +8,11 @@ from opencage.geocoder import OpenCageGeocode
 from datetime import datetime as dt
 import calendar, requests, api_keys, socket, pylunar, almanac, utilities as u
 import timezonefinder, pytz
+from timezonefinder import TimezoneFinder
 import requests
+import ciso8601
+from pytz import timezone
+from tzlocal import get_localzone
 
 geocoder = OpenCageGeocode(api_keys.open_cage_apikey)
 
@@ -18,8 +23,8 @@ app.permanent_session_lifetime = timedelta(days=5)
 # Setup variables
 default_loc = "Broomfield, Colorado"  # Default location
 today = dt.today()  # Current date
+formatted_current = None
 current_hour = today.hour
-ts = int(dt.now().timestamp())  # Time stamp of current day
 
 
 @app.route("/", methods=['POST', 'GET'])
@@ -33,20 +38,20 @@ def astro_forecast():
     return render_template("forecast.html", **context)
 
 
-def create_hourly_dict(ds_forecast):
+def start_forecast_current_hour(ds_forecast):
     """
     Returns a dictionary out of hourly forecast data
 
     :param ds_forecast: DARKSKY API RESULTS
     :return: DICTIONARY of hourly forecast data
     """
+
     # Create empty dictionary
     hourly_dict = {}
 
     # Create a 24 hour dictionary starting from the current hour using the time as the keys
-    for x in range(0, 24):
-        dt_object = dt.fromtimestamp(ds_forecast.hourly[x].time)
-        hourly_dict[str(dt_object)] = ds_forecast.hourly[x]
+    for i in range(0, 24):
+        hourly_dict[str(i)] = ds_forecast['hourly'][i]
 
     return hourly_dict
 
@@ -94,6 +99,9 @@ def set_up_forecast():
     Returns the context for the html
     :return:
     """
+    global current_hour
+    global formatted_current
+
     # Determine if city/state or lat/lng, return loc data and location
     if request.form:
         geocoder_data, loc = get_user_locational_data()
@@ -101,33 +109,23 @@ def set_up_forecast():
         loc = default_loc
         geocoder_data = geocoder.geocode(default_loc)
 
-    # tz = pytz.timezone(geocoder_data[0]['annotations']['timezone']['name'])
-    # tz_now = dt.now(tz)
-
     lat = geocoder_data[0]['geometry']['lat']
     lng = geocoder_data[0]['geometry']['lng']
 
-    # Get darksky data
-    # darksky_data = forecast(key=api_keys.darksky_apikey, latitude=geocoder_data[0]['geometry']['lat'],
-    #                         longitude=geocoder_data[0]['geometry']['lng'])
-    darksky_data = get_weather_data(lat, lng, 'midnight')
+    tz_obj = TimezoneFinder()
+    my_date = dt.now(pytz.timezone(tz_obj.timezone_at(lng=lng, lat=lat)))
+    current_hour = my_date.hour
 
-    print(darksky_data.hourly[0].time)
+    formatted_current = str(today.date()) + " " + str(current_hour) + ":00:00"
 
-    # Get darksky hourly dictionary
-    hourly_forecast = create_hourly_dict(darksky_data)
-
-    # Get moon phase (english)
-    moon_phase = u.moon_phase(darksky_data['daily']['data'][0]['moonPhase'])
+    hourly_forecast = get_weather_data(lat, lng, 'midnight')
 
     # Get a list of wind directions and ids (for html)
     wind_direction_ids = []
     wind_directions = []
-    hours = []
     for key in hourly_forecast:
-        wind_directions.append(u.wind_direction(hourly_forecast[key].windBearing))
-        wind_direction_ids.append("direction" + key[11:13])
-        hours.append(key[11:13])
+        wind_directions.append(u.wind_direction(hourly_forecast[key]['wind_deg']))
+        wind_direction_ids.append("direction" + str(key))
 
     # Get moon rise / set times
     lat_dms = u.decdeg2dms(geocoder_data[0]['geometry']['lat'])
@@ -145,7 +143,7 @@ def set_up_forecast():
         'location': loc,
         'phase': moon_obj.phase_name().replace("_", " "),
         'lunar_times': lunar_set_rise,
-        'hours': hours
+        'current_hour': current_hour
     }
 
 
@@ -160,80 +158,92 @@ def get_weather_data(lat, lng, request_type='current'):
     :return:
     """
 
-    response = None
-
     if request_type == 'current':
-        response = requests.get(
-            f"https://api.darksky.net/forecast/{api_keys.darksky_apikey}/{lat},{lng}?exclude=currently,minutely,daily,flags&units=us")
+        response = requests.get(f"http://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&dt=1618850845&appid={api_keys.openweather_apikey}")
+        return start_forecast_current_hour(response.json())
 
     elif request_type == 'midnight':
-        # Create a datetime object set at midnight (default settings)
-        response = requests.get(f"https://api.darksky.net/forecast/{api_keys.darksky_apikey}/{lat},{lng},{ts}?exclude=currently,minutely,daily,flags&units=us")
-        return format_midnight_forcast(response)
+        return center_forecast_on_midnight(lat, lng)
 
     elif request_type == 'midday':
-        return format_midday_forecast(lat, lng)
+        return center_forecast_on_midday(lat, lng)
 
 
-def format_midnight_forcast(response):
+def center_forecast_on_midnight(lat, lng):
     """
-    Takes in a DarkSky API response
-    Returns a formatted dictionary
 
+    :param current:
+    :param historical:
     :param response:
     :return:
     """
-    # Get the DarkSky TimeMachine response and formatted json dictionary
-    historical_json = response.json()['hourly']['data']
-    for i in range(0, 24):
-         = historical_json[i+12]
+    formatted_forecast = OrderedDict()
+
+    # Get yesterday's date
+    yesterday = today - timedelta(1)
+    yesterday_midnight = dt(yesterday.year, yesterday.month, yesterday.day, hour=0)
+    yesterday_timestamp = int(yesterday_midnight.timestamp())
+
+    yesterday_response = requests.get(
+        f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&dt={yesterday_timestamp}&appid={api_keys.openweather_apikey}")
+    currently_response = requests.get(
+        f"https://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&appid={api_keys.openweather_apikey}")
+    today_historical_response = requests.get(f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&dt={int(today.timestamp())}&appid={api_keys.openweather_apikey}")
+    yesterday_json = yesterday_response.json()
+    today_historical_json = today_historical_response.json()
+    currently_json = currently_response.json()
+
+    # Request made before noon
+    if current_hour < 12:
+        # Get the data from noon to midnight of the previous day
+        for i in range(12, 24):
+            formatted_forecast[str(i)] = yesterday_json['hourly'][i]
+        # TODO - finish the center on midnight request when the hour is before noon
+    else:
+        # Midday of the current day to the current hour of the current day
+        for i in range(12, current_hour):
+            formatted_forecast[str(i)] = today_historical_json['hourly'][i]
+        # Current hour of current day to midday of the next day
+        for i in range(0, 25 - (current_hour - 12)):
+
+            # The logic below is for keeping the keys relative to a 24 hour time system.
+
+            # If the current hour of the iterator is less than 24, make the key be the index plus the current hour
+            if i+current_hour < 24:
+                formatted_forecast[str(i+current_hour)] = currently_json['hourly'][i]
+
+            # If the current hour of the iterator is above 24, subtract 25 (to get 0) and keep iterating
+            if i+current_hour > 24:
+                formatted_forecast[str(i+current_hour-25)] = currently_json['hourly'][i]
+
+    return formatted_forecast
 
 
-
-
-def format_midday_forecast(lat, lng):
+def center_forecast_on_midday(lat, lng):
     """
-    Takes in historical and current darksky data
-    returns the data in a dictionary, formatted so that the first key is midday, last key is 23 hours after that.
 
     :param lng:
     :param lat:
     :return:
     """
-    # current_response = requests.get(f"https://api.darksky.net/forecast/{api_keys.darksky_apikey}/"
-    #                                 f"{lat},{lng}?exclude=currently,minutely,daily,flags&units=us")
-    # current_json = current_response.json()['hourly']['data']
+
+    # Create empty dict
     formatted_forecast = {}
 
-    # Get the DarkSky TimeMachine response and formatted json dictionary
-    midnight_response = requests.get(f"https://api.darksky.net/forecast/{api_keys.darksky_apikey}/"
-                                     f"{lat},{lng},{ts}?exclude=currently,minutely,daily,flags&units=us")
-    historical_json = midnight_response.json()['hourly']['data']
+    # Get the Openweather API response and format it to JSON
+    historical_response = requests.get(
+        f"https://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&exclude=current,minutely,daily,alerts&appid={api_keys.openweather_apikey}")
+    historical_json = historical_response.json()
 
+    # From 0 to 24
     for i in range(0, 24):
-        dt_object = dt.fromtimestamp(historical_json[i]['time'])
-        formatted_forecast[str(dt_object)] = historical_json[i]
+        # Add a 0 before i if i is less than 10
+        if i < 10:
+            formatted_forecast["0" + str(i)] = historical_json['hourly'][i]
+        else:
+            formatted_forecast[str(i)] = historical_json['hourly'][i]
 
     return formatted_forecast
-
-    # else:
-    #
-    #     # Get the time in hours (int) that it would take to hit 12:00
-    #     midday_offset = 12 - current_hour
-    #
-    #     # From midday of the current day to midday of the next day,
-    #     #   create the new keys with the respective data for each hour.
-    #     # Each key represents an hour.
-    #     for i in range(midday_offset, 24 + midday_offset):
-    #
-    #         # Get the timestamp and convert it to a human readable date
-    #         ts_current = current_json[i]['time']
-    #         dt_obj = dt.fromtimestamp(ts_current)
-    #
-    #         # Assign the keys and data to the dictionary, starting at midday
-    #         formatted_forecast[dt_obj.hour] = current_json[i]
-    #
-    # return formatted_forecast
 
 
 if __name__ == '__main__':

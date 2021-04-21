@@ -70,3 +70,13 @@ def decdeg2dms(dd):
     degrees = degrees if is_positive else -degrees
     return degrees, minutes, seconds
 
+
+def kelvin_to_fahrenheit(temp):
+    """
+    Converts a temperature, represented in Kelvin, to Fahrenheit
+
+    :param temp: Temperature in Kelvin
+    :return:
+    """
+    return (((temp - 273.15) * 9) / 5) + 32
+

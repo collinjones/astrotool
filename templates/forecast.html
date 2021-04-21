@@ -31,7 +31,7 @@
         <tr id="top_row">
           <th class="forecast_col" style="border: 1px solid black">{{phase}}</th>
           {% for key in darksky %}
-            <th style="color:white; text-align: center" id="hour{{key[11:13]}}">{{ key[10:13] }}</th>
+            <th style="color:white; text-align: center" id="hour{{key}}">{{ key }}</th>
           {% endfor %}
         </tr>
 
@@ -39,7 +39,7 @@
         <tr>
           <td class="forecast_col" style="border: 1px solid black">Temperature</td>
           {% for key in darksky %}
-            <td id="temp{{key[11:13]}}"> {{ darksky[key].temperature }}</td>
+            <td id="temp{{key}}"> {{ "%.2f"|format(((((darksky[key]['temp']) - 273.15) * 9) / 5) + 32) }}</td>
           {% endfor %}
         </tr>
 
@@ -47,7 +47,7 @@
         <tr>
           <td class="forecast_col" style="border: 1px solid black">Wind Speed (mph) </td>
           {% for key in darksky %}
-            <td id="speed{{key[11:13]}}"> {{ darksky[key].windSpeed }}</td>
+            <td id="speed{{key}}"> {{ darksky[key]['wind_speed'] }}</td>
           {% endfor %}
         </tr>
 
@@ -63,7 +63,7 @@
         <tr>
           <td class="forecast_col" style="border: 1px solid black">Cloud Coverage</td>
           {% for key in darksky %}
-            <td id="cover{{key[11:13]}}"> {{ darksky[key].cloudCover }}</td>
+            <td id="cover{{key}}"> {{ darksky[key]['clouds'] }}</td>
           {% endfor %}
         </tr>
 
@@ -76,25 +76,25 @@
 {% for key in darksky %}
   <!-- Script to colorize the hour cells -->
   <script>
-    if ("{{darksky[key].windSpeed}}" > 8 || "{{darksky[key].cloudCover}}" > 0.20) {
-      document.getElementById("hour{{key[11:13]}}").style.backgroundColor = "red";
+    if ("{{darksky[key]['wind_speed']}}" > 8 || "{{darksky[key]['clouds']}}" > 20) {
+      document.getElementById("hour{{key}}").style.backgroundColor = "red";
     }
-    else if ("{{darksky[key].windSpeed}}" < 8 && "{{darksky[key].windSpeed}}" > 6 ||
-             "{{darksky[key].cloudCover}}" < 0.20 && "{{darksky[key].cloudCover}}" > 0.10){
-      document.getElementById("hour{{key[11:13]}}").style.backgroundColor = "orange";
+    else if ("{{darksky[key]['wind_speed']}}" < 8 && "{{darksky[key]['wind_speed']}}" > 6 ||
+             "{{darksky[key]['clouds']}}" < 20 && "{{darksky[key]['clouds']}}" > 10){
+      document.getElementById("hour{{key}}").style.backgroundColor = "orange";
     }
     else {
-      document.getElementById("hour{{key[11:13]}}").style.backgroundColor = "green";
+      document.getElementById("hour{{key}}").style.backgroundColor = "green";
     }
   </script>
 {% endfor %}
 
   <script>
-    document.getElementById("hour{{hours[0]}}").style.border = "2px solid cornflowerblue";
-    document.getElementById("temp{{hours[0]}}").style.border = "2px solid cornflowerblue";
-    document.getElementById("speed{{hours[0]}}").style.border = "2px solid cornflowerblue";
-    document.getElementById("direction{{hours[0]}}").style.border = "2px solid cornflowerblue";
-    document.getElementById("cover{{hours[0]}}").style.border = "2px solid cornflowerblue";
+    document.getElementById("hour{{current_hour}}").style.border = "2px solid cornflowerblue";
+    document.getElementById("temp{{current_hour}}").style.border = "2px solid cornflowerblue";
+    document.getElementById("speed{{current_hour}}").style.border = "2px solid cornflowerblue";
+    document.getElementById("direction{{current_hour}}").style.border = "2px solid cornflowerblue";
+    document.getElementById("cover{{current_hour}}").style.border = "2px solid cornflowerblue";
   </script>
 
 {% endblock %}
