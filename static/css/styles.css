@@ -4,6 +4,10 @@ body {
     height: 100%;
     line-height: 0px;
 }
+.titles{
+    color: dimgray;
+    font-size: small;
+}
 
 body {
     font-family: "Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -72,3 +76,4 @@ table.forecast tr {
 .form_wrapper {
     border: gray 1px;
 }
+

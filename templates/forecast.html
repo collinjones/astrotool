@@ -29,23 +29,30 @@
 
         <!-- Moon phase and Hour -->
         <tr id="top_row">
-          <th class="forecast_col" style="border: 1px solid black">{{phase}}</th>
+          <th class="forecast_col">{{phase}}</th>
           {% for key in darksky %}
             <th style="color:white; text-align: center" id="hour{{key}}">{{ key }}</th>
           {% endfor %}
         </tr>
 
-        <!-- Temperature -->
+        <!-- Actual Temperature -->
         <tr>
-          <td class="forecast_col" style="border: 1px solid black">Temperature</td>
+          <td class="forecast_col"><span class="titles"> Actual Temperature </span></td>
           {% for key in darksky %}
-            <td id="temp{{key}}"> {{ "%.2f"|format(((((darksky[key]['temp']) - 273.15) * 9) / 5) + 32) }}</td>
+            <td id="temp{{key}}"> {{ darksky[key]['temp'] }}</td>
+          {% endfor %}
+        </tr>
+        <!-- Perceived Temperature -->
+        <tr>
+          <td class="forecast_col"><span class="titles"> Perceived Temperature </span></td>
+          {% for key in darksky %}
+            <td id="feels_like{{key}}"> {{ darksky[key]['feels_like'] }}</td>
           {% endfor %}
         </tr>
 
         <!-- Wind Speed -->
         <tr>
-          <td class="forecast_col" style="border: 1px solid black">Wind Speed (mph) </td>
+          <td class="forecast_col"><span class="titles"> Wind Speed (mph) </span></td>
           {% for key in darksky %}
             <td id="speed{{key}}"> {{ darksky[key]['wind_speed'] }}</td>
           {% endfor %}
@@ -53,7 +60,7 @@
 
         <!-- Wind Direction -->
         <tr>
-          <td class="forecast_col" style="border: 1px solid black">Wind Direction</td>
+          <td class="forecast_col"><span class="titles"> Wind Direction </span></td>
           {% for element in wind_directions %}
             <td id="{{wind_direction_ids[loop.index0]}}"> {{ element }}</td>
           {% endfor %}
@@ -61,7 +68,7 @@
 
         <!-- Cloud Coverage -->
         <tr>
-          <td class="forecast_col" style="border: 1px solid black">Cloud Coverage</td>
+          <td class="forecast_col"><span class="titles"> Cloud Coverage </span></td>
           {% for key in darksky %}
             <td id="cover{{key}}"> {{ darksky[key]['clouds'] }}</td>
           {% endfor %}
@@ -92,6 +99,7 @@
   <script>
     document.getElementById("hour{{current_hour}}").style.border = "2px solid cornflowerblue";
     document.getElementById("temp{{current_hour}}").style.border = "2px solid cornflowerblue";
+    document.getElementById("feels_like{{current_hour}}").style.border = "2px solid cornflowerblue";
     document.getElementById("speed{{current_hour}}").style.border = "2px solid cornflowerblue";
     document.getElementById("direction{{current_hour}}").style.border = "2px solid cornflowerblue";
     document.getElementById("cover{{current_hour}}").style.border = "2px solid cornflowerblue";

@@ -159,7 +159,7 @@ def get_weather_data(lat, lng, request_type='current'):
     """
 
     if request_type == 'current':
-        response = requests.get(f"http://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&dt=1618850845&appid={api_keys.openweather_apikey}")
+        response = requests.get(f"http://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&units=imperial&units=imperial&dt=1618850845&appid={api_keys.openweather_apikey}")
         return start_forecast_current_hour(response.json())
 
     elif request_type == 'midnight':
@@ -185,10 +185,10 @@ def center_forecast_on_midnight(lat, lng):
     yesterday_timestamp = int(yesterday_midnight.timestamp())
 
     yesterday_response = requests.get(
-        f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&dt={yesterday_timestamp}&appid={api_keys.openweather_apikey}")
+        f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&units=imperial&dt={yesterday_timestamp}&appid={api_keys.openweather_apikey}")
     currently_response = requests.get(
-        f"https://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&appid={api_keys.openweather_apikey}")
-    today_historical_response = requests.get(f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&dt={int(today.timestamp())}&appid={api_keys.openweather_apikey}")
+        f"https://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&units=imperial&appid={api_keys.openweather_apikey}")
+    today_historical_response = requests.get(f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&units=imperial&dt={int(today.timestamp())}&appid={api_keys.openweather_apikey}")
     yesterday_json = yesterday_response.json()
     today_historical_json = today_historical_response.json()
     currently_json = currently_response.json()
@@ -232,7 +232,7 @@ def center_forecast_on_midday(lat, lng):
 
     # Get the Openweather API response and format it to JSON
     historical_response = requests.get(
-        f"https://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&exclude=current,minutely,daily,alerts&appid={api_keys.openweather_apikey}")
+        f"https://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&units=imperial&exclude=current,minutely,daily,alerts&appid={api_keys.openweather_apikey}")
     historical_json = historical_response.json()
 
     # From 0 to 24
