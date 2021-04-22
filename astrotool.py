@@ -186,6 +186,8 @@ def center_forecast_on_midnight(lat, lng):
         # Get the data from noon to midnight of the previous day
         for i in range(12, 24):
             formatted_forecast[str(i)] = yesterday_json['hourly'][i]
+        for i in range(0, 12):
+            formatted_forecast[str(i)] = today_historical_json['hourly'][i]
         # TODO - finish the center on midnight request when the hour is before noon
     else:
         # Midday of the current day to the current hour of the current day
@@ -241,6 +243,7 @@ def request_data(type, lat, lng):
     :param lng: longitude
     :return: json object of weather data
     """
+
     if type == "now":
         currently_response = requests.get(f"https://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&units=imperial&appid={api_keys.openweather_apikey}")
         return currently_response.json()
@@ -253,6 +256,8 @@ def request_data(type, lat, lng):
         yesterday_midnight = dt(yesterday.year, yesterday.month, yesterday.day, hour=0)
         yesterday_timestamp = int(yesterday_midnight.timestamp())
         yesterday_response = requests.get(f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&units=imperial&dt={yesterday_timestamp}&appid={api_keys.openweather_apikey}")
+        return yesterday_response.json()
+
 
 if __name__ == '__main__':
     app.run(debug=True)

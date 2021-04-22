@@ -20,7 +20,7 @@ body {
 }
 
 table, th, td {
-    /*border: 1px solid lightgray;*/
+    border: 1px solid #CCCCCC;
     border-collapse: collapse;
     text-align: center;
 }
@@ -52,13 +52,16 @@ td{
 }
 
 th{
-
     width: 50px;
 }
 
 .forecast_col{
-    width:100px;
-    line-height: 1; /*or whatever you like.*/
+    width: 100px;
+    line-height: 1;
+    border-top-width: 0px;
+    border-bottom-width: 0px;
+    border-left-width: 0px;
+    border-right-width: 0px;
 }
 
 table.forecast {
@@ -66,6 +69,7 @@ table.forecast {
     width:100%;
     border-collapse: separate;
     border-spacing: 2px;
+    border: 0px;
 }/*Setting the table width is important!*/
 table.forecast tr {
     /*overflow:hidden;*/
@@ -75,5 +79,10 @@ table.forecast tr {
 
 .form_wrapper {
     border: gray 1px;
+}
+
+td:hover{
+    background-color: aquamarine; !important;
+
 }
 

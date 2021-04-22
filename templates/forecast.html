@@ -37,14 +37,14 @@
 
         <!-- Actual Temperature -->
         <tr>
-          <td class="forecast_col"><span class="titles"> Actual Temperature </span></td>
+          <td class="forecast_col"><span class="titles"> Actual Temperature (°F)</span></td>
           {% for key in darksky %}
             <td id="temp{{key}}"> {{ darksky[key]['temp'] }}</td>
           {% endfor %}
         </tr>
         <!-- Perceived Temperature -->
         <tr>
-          <td class="forecast_col"><span class="titles"> Perceived Temperature </span></td>
+          <td class="forecast_col"><span class="titles"> Perceived Temperature (°F) </span></td>
           {% for key in darksky %}
             <td id="feels_like{{key}}"> {{ darksky[key]['feels_like'] }}</td>
           {% endfor %}
@@ -52,7 +52,7 @@
 
         <!-- Wind Speed -->
         <tr>
-          <td class="forecast_col"><span class="titles"> Wind Speed (mph) </span></td>
+          <td class="forecast_col"><span class="titles"> Wind Speed (Mph) </span></td>
           {% for key in darksky %}
             <td id="speed{{key}}"> {{ darksky[key]['wind_speed'] }}</td>
           {% endfor %}
@@ -68,7 +68,7 @@
 
         <!-- Cloud Coverage -->
         <tr>
-          <td class="forecast_col"><span class="titles"> Cloud Coverage </span></td>
+          <td class="forecast_col"><span class="titles"> Cloud Coverage (% of sky covered) </span></td>
           {% for key in darksky %}
             <td id="cover{{key}}"> {{ darksky[key]['clouds'] }}</td>
           {% endfor %}
@@ -96,14 +96,29 @@
   </script>
 {% endfor %}
 
+<script>
+  document.getElementById("hour{{current_hour}}").style.border = "2px solid cornflowerblue";
+  document.getElementById("temp{{current_hour}}").style.border = "2px solid cornflowerblue";
+  document.getElementById("feels_like{{current_hour}}").style.border = "2px solid cornflowerblue";
+  document.getElementById("speed{{current_hour}}").style.border = "2px solid cornflowerblue";
+  document.getElementById("direction{{current_hour}}").style.border = "2px solid cornflowerblue";
+  document.getElementById("cover{{current_hour}}").style.border = "2px solid cornflowerblue";
+</script>
+
+{% for key in darksky %}
   <script>
-    document.getElementById("hour{{current_hour}}").style.border = "2px solid cornflowerblue";
-    document.getElementById("temp{{current_hour}}").style.border = "2px solid cornflowerblue";
-    document.getElementById("feels_like{{current_hour}}").style.border = "2px solid cornflowerblue";
-    document.getElementById("speed{{current_hour}}").style.border = "2px solid cornflowerblue";
-    document.getElementById("direction{{current_hour}}").style.border = "2px solid cornflowerblue";
-    document.getElementById("cover{{current_hour}}").style.border = "2px solid cornflowerblue";
+    if ("{{darksky[key]['clouds']}}" < 33) {
+      document.getElementById("cover{{key}}").style.backgroundColor = "#5289e3";
+    }
+    else if ("{{darksky[key]['clouds']}}" > 3 && "{{darksky[key]['clouds']}}" < 66) {
+      document.getElementById("cover{{key}}").style.backgroundColor = "#a3b5d1";
+    }
+    else {
+      document.getElementById("cover{{key}}").style.backgroundColor = "white";
+    }
   </script>
+{% endfor %}
+
 
 {% endblock %}
 
