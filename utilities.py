@@ -15,14 +15,14 @@ def wind_direction(bearing):
 
     # Dictionary of wind bearings and their cardinal direction counterparts
     bearing_dict = {
-        "North": 0,
-        "North East": 45,
-        "East": 90,
-        "South East": 135,
-        "South": 180,
-        "South West": 225,
-        "West": 270,
-        "North West": 315,
+        "↑": 0,
+        "↗": 45,
+        "→": 90,
+        "↘": 135,
+        "↓": 180,
+        "↙": 225,
+        "←": 270,
+        "↖": 315,
     }
 
     # Map (bearing - each value) and take the minimum value, then return the key
@@ -31,7 +31,7 @@ def wind_direction(bearing):
 
     # In the case that the bearing is above 337.5, evaluate to north
     else:
-        return "North"
+        return "↑"
 
 
 def moon_phase(phase):

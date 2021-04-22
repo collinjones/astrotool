@@ -1,8 +1,7 @@
-html,
-body {
+html, body {
     width: 100%;
     height: 100%;
-    line-height: 0px;
+    line-height: 1px;
 }
 .titles{
     color: dimgray;
@@ -47,29 +46,37 @@ table, th, td {
 }
 
 td{
+    transition-duration: 0.2s;
     text-align: center;
     width: 50px;
+}
+
+td:hover{
+    transition-duration: 0.2s;
+    background-color: #d7d7d7 !important;
 }
 
 th{
     width: 50px;
 }
 
+.forecast{
+    margin: auto;
+}
+
 .forecast_col{
     width: 100px;
     line-height: 1;
-    border-top-width: 0px;
-    border-bottom-width: 0px;
-    border-left-width: 0px;
-    border-right-width: 0px;
+    border-left-width: 0;
+    border-right-width: 0;
 }
 
 table.forecast {
     table-layout:fixed;
-    width:100%;
     border-collapse: separate;
-    border-spacing: 2px;
-    border: 0px;
+    border-spacing: 5px;
+    border: 0;
+
 }/*Setting the table width is important!*/
 table.forecast tr {
     /*overflow:hidden;*/
@@ -77,12 +84,25 @@ table.forecast tr {
     width: 50px;
 }/*Hide text outside the cell.*/
 
-.form_wrapper {
-    border: gray 1px;
+.form-wrapper {
+    width: 800px;
+    height: 58px;
+    background-color: lightgray;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+
+}
+.location-form{
+    padding: 10px 10px;
+    width: 700px;
+    margin: auto;
+}
+h1 {
+    overflow: auto;
+    margin: 10px 10px 10px 10px;
 }
 
-td:hover{
-    background-color: aquamarine; !important;
 
-}
 
