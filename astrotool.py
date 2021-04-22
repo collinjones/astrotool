@@ -12,7 +12,6 @@ from timezonefinder import TimezoneFinder
 import requests
 import ciso8601
 from pytz import timezone
-from tzlocal import get_localzone
 
 geocoder = OpenCageGeocode(api_keys.open_cage_apikey)
 
@@ -22,8 +21,7 @@ app.permanent_session_lifetime = timedelta(days=5)
 
 # Setup variables
 default_loc = "Broomfield, Colorado"  # Default location
-today = dt.today()  # Current date
-formatted_current = None
+today = dt.today()  # Current date object
 current_hour = today.hour
 
 
@@ -112,15 +110,15 @@ def set_up_forecast():
     lat = geocoder_data[0]['geometry']['lat']
     lng = geocoder_data[0]['geometry']['lng']
 
+    # Localize the time to where the data is being requested
     tz_obj = TimezoneFinder()
     my_date = dt.now(pytz.timezone(tz_obj.timezone_at(lng=lng, lat=lat)))
-    current_hour = my_date.hour
+    localized_hour = my_date.hour
 
-    formatted_current = str(today.date()) + " " + str(current_hour) + ":00:00"
-
+    # Return the hourly forecast
     hourly_forecast = get_weather_data(lat, lng, 'midnight')
 
-    # Get a list of wind directions and ids (for html)
+    # Get a list of wind directions and ids
     wind_direction_ids = []
     wind_directions = []
     for key in hourly_forecast:
@@ -143,7 +141,7 @@ def set_up_forecast():
         'location': loc,
         'phase': moon_obj.phase_name().replace("_", " "),
         'lunar_times': lunar_set_rise,
-        'current_hour': current_hour
+        'current_hour': localized_hour
     }
 
 
@@ -159,7 +157,7 @@ def get_weather_data(lat, lng, request_type='current'):
     """
 
     if request_type == 'current':
-        response = requests.get(f"http://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&units=imperial&units=imperial&dt=1618850845&appid={api_keys.openweather_apikey}")
+        response = requests.get(f"http://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&units=imperial&dt=1618850845&appid={api_keys.openweather_apikey}")
         return start_forecast_current_hour(response.json())
 
     elif request_type == 'midnight':
@@ -171,27 +169,17 @@ def get_weather_data(lat, lng, request_type='current'):
 
 def center_forecast_on_midnight(lat, lng):
     """
+    Center the forecast on midnight. (12 - 11)
 
-    :param current:
-    :param historical:
-    :param response:
+    :param lat:
+    :param lng:
     :return:
     """
     formatted_forecast = OrderedDict()
 
-    # Get yesterday's date
-    yesterday = today - timedelta(1)
-    yesterday_midnight = dt(yesterday.year, yesterday.month, yesterday.day, hour=0)
-    yesterday_timestamp = int(yesterday_midnight.timestamp())
-
-    yesterday_response = requests.get(
-        f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&units=imperial&dt={yesterday_timestamp}&appid={api_keys.openweather_apikey}")
-    currently_response = requests.get(
-        f"https://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&units=imperial&appid={api_keys.openweather_apikey}")
-    today_historical_response = requests.get(f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&units=imperial&dt={int(today.timestamp())}&appid={api_keys.openweather_apikey}")
-    yesterday_json = yesterday_response.json()
-    today_historical_json = today_historical_response.json()
-    currently_json = currently_response.json()
+    yesterday_json = request_data("yesterday", lat, lng)
+    today_historical_json = request_data("earlier", lat, lng)
+    currently_json = request_data("now", lat, lng)
 
     # Request made before noon
     if current_hour < 12:
@@ -221,30 +209,50 @@ def center_forecast_on_midnight(lat, lng):
 
 def center_forecast_on_midday(lat, lng):
     """
-
-    :param lng:
-    :param lat:
-    :return:
+    Center the forecast on midday (00 - 23)
     """
 
     # Create empty dict
     formatted_forecast = {}
 
     # Get the Openweather API response and format it to JSON
-    historical_response = requests.get(
-        f"https://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&units=imperial&exclude=current,minutely,daily,alerts&appid={api_keys.openweather_apikey}")
-    historical_json = historical_response.json()
+    earlier_weather = request_data("earlier", lat, lng)
 
     # From 0 to 24
     for i in range(0, 24):
         # Add a 0 before i if i is less than 10
         if i < 10:
-            formatted_forecast["0" + str(i)] = historical_json['hourly'][i]
+            formatted_forecast["0" + str(i)] = earlier_weather['hourly'][i]
         else:
-            formatted_forecast[str(i)] = historical_json['hourly'][i]
+            formatted_forecast[str(i)] = earlier_weather['hourly'][i]
 
     return formatted_forecast
 
+
+def request_data(type, lat, lng):
+    """
+    A function for requesting different types of data.
+        "now": data from now to 48 hours ahead
+        "earlier": 24 hours of data starting at the first hour of the current day
+        "yesterday": 24 hours of data starting at the first hour of the day before the current day
+
+    :param type: type of data being requested
+    :param lat: latitude
+    :param lng: longitude
+    :return: json object of weather data
+    """
+    if type == "now":
+        currently_response = requests.get(f"https://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&units=imperial&appid={api_keys.openweather_apikey}")
+        return currently_response.json()
+    elif type == "earlier":
+        today_historical_response = requests.get(f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&units=imperial&dt={int(today.timestamp())}&appid={api_keys.openweather_apikey}")
+        return today_historical_response.json()
+    elif type == "yesterday":
+        # Get yesterday's date
+        yesterday = today - timedelta(1)
+        yesterday_midnight = dt(yesterday.year, yesterday.month, yesterday.day, hour=0)
+        yesterday_timestamp = int(yesterday_midnight.timestamp())
+        yesterday_response = requests.get(f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&units=imperial&dt={yesterday_timestamp}&appid={api_keys.openweather_apikey}")
 
 if __name__ == '__main__':
     app.run(debug=True)
