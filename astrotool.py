@@ -188,7 +188,6 @@ def center_forecast_on_midnight(lat, lng):
             formatted_forecast[str(i)] = yesterday_json['hourly'][i]
         for i in range(0, 12):
             formatted_forecast[str(i)] = today_historical_json['hourly'][i]
-        # TODO - finish the center on midnight request when the hour is before noon
     else:
         # Midday of the current day to the current hour of the current day
         for i in range(12, current_hour):
