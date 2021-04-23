@@ -191,6 +191,7 @@ def center_forecast_on_midnight(lat, lng):
     else:
         # Midday of the current day to the current hour of the current day
         for i in range(12, current_hour):
+            print(i)
             formatted_forecast[str(i)] = today_historical_json['hourly'][i]
         # Current hour of current day to midday of the next day
         for i in range(0, 25 - (current_hour - 12)):
@@ -245,9 +246,12 @@ def request_data(type, lat, lng):
 
     if type == "now":
         currently_response = requests.get(f"https://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&units=imperial&appid={api_keys.openweather_apikey}")
+        print(f"https://pro.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lng}&units=imperial&appid={api_keys.openweather_apikey}")
         return currently_response.json()
     elif type == "earlier":
         today_historical_response = requests.get(f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&units=imperial&dt={int(today.timestamp())}&appid={api_keys.openweather_apikey}")
+        print(f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&units=imperial&dt={int(today.timestamp())}&appid={api_keys.openweather_apikey}")
+        pprint(today_historical_response.json())
         return today_historical_response.json()
     elif type == "yesterday":
         # Get yesterday's date
@@ -255,6 +259,7 @@ def request_data(type, lat, lng):
         yesterday_midnight = dt(yesterday.year, yesterday.month, yesterday.day, hour=0)
         yesterday_timestamp = int(yesterday_midnight.timestamp())
         yesterday_response = requests.get(f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&units=imperial&dt={yesterday_timestamp}&appid={api_keys.openweather_apikey}")
+        print(f"https://pro.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lng}&units=imperial&dt={yesterday_timestamp}&appid={api_keys.openweather_apikey}")
         return yesterday_response.json()
 
 

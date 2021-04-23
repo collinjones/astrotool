@@ -91,15 +91,16 @@
   <script>
     if ("{{darksky[key]['wind_speed']}}" > 8 || "{{darksky[key]['clouds']}}" > 20) {
       document.getElementById("hour{{key}}").style.backgroundColor = "#e34343";
-      document.getElementById("speed{{key}}").style.background = "#de8181";
+      // document.getElementById("speed{{key}}").style.background = "#de8181";
     }
     else if ("{{darksky[key]['wind_speed']}}" < 8 && "{{darksky[key]['wind_speed']}}" > 6 ||
              "{{darksky[key]['clouds']}}" < 20 && "{{darksky[key]['clouds']}}" > 10){
       document.getElementById("hour{{key}}").style.backgroundColor = "orange";
+      document.getElementById("speed{{key}}").style.background = "#82de81";
     }
     else {
       document.getElementById("hour{{key}}").style.backgroundColor = "#3ddb3c";
-      document.getElementById("speed{{key}}").style.background = "#82de81";
+
     }
   </script>
 {% endfor %}
@@ -118,13 +119,13 @@
 {% for key in darksky %}
   <script>
     if ("{{darksky[key]['clouds']}}" < 33) {
-      document.getElementById("cover{{key}}").style.backgroundColor = "#5289e3";
+      document.getElementById("cover{{key}}").style.backgroundColor = "#4B77BE";
     }
     else if ("{{darksky[key]['clouds']}}" > 3 && "{{darksky[key]['clouds']}}" < 66) {
-      document.getElementById("cover{{key}}").style.backgroundColor = "#a3b5d1";
+      document.getElementById("cover{{key}}").style.backgroundColor = "#6c7e9c";
     }
     else {
-      document.getElementById("cover{{key}}").style.backgroundColor = "white";
+      document.getElementById("cover{{key}}").style.backgroundColor = "#c4cede";
     }
   </script>
 {% endfor %}
