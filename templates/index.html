@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %} Index {% endblock %}
+{% block content %}
+
+<div class="form-wrapper">
+  <form action="/forecast" method="POST" class="location-form">
+    <div class="form-row">
+      <div class="col">
+        <label for="city"><input name="city" id="city" type="text" class="form-control" placeholder="City"></label>
+      </div>
+      <div class="col">
+        <label for="state"><input name="state" id="state" type="text" class="form-control" placeholder="State"></label>
+      </div>
+      <button type="submit" value="Submit" class="btn btn-primary">Submit</button>
+      <input type="hidden" value="location" name="location">
+    </div>
+  </form>
+</div>
+
+{% endblock %}

@@ -4,20 +4,6 @@
 
 <div class="content-wrapper">
 
-<div class="form-wrapper">
-    <form action="/" method="POST" class="location-form">
-      <div class="form-row">
-        <div class="col">
-          <input name="city" id="city" type="text" class="form-control" placeholder="City">
-        </div>
-        <div class="col">
-          <input name="state" id="state" type="text" class="form-control" placeholder="State">
-        </div>
-        <button type="submit" value="Submit" class="btn btn-primary">Submit</button>
-      </div>
-    </form>
-</div>
-
 
   <div class="topdata">
 
@@ -26,10 +12,17 @@
     </div>
     <h1>{{location}}</h1>
 
+    <form action="/forecast" method="POST">
+      <input type="hidden" name="center" value="center">
+      <button type="submit" value='current' name="submit" class="btn btn-primary">Start on current hour</button>
+      <button type="submit" value='midnight' name="submit" class="btn btn-primary">Center on midnight</button>
+      <button type="submit" value='midday' name="submit" class="btn btn-primary">Center on midday</button>
+    </form>
+
   </div>
 
   <!-- Forecast table -->
-  <div>
+  <div class="forecast-wrapper">
     <table class="forecast">
 
       <!-- Moon phase and Hour -->
@@ -87,21 +80,33 @@
 
 <!-- Script to colorize the hour cells -->
 {% for key in darksky %}
-
+<!---->
   <script>
-    if ("{{darksky[key]['wind_speed']}}" > 8 || "{{darksky[key]['clouds']}}" > 20) {
-      document.getElementById("hour{{key}}").style.backgroundColor = "#e34343";
-      // document.getElementById("speed{{key}}").style.background = "#de8181";
+    // if ("{{darksky[key]['wind_speed']}}" > 8){
+    //   document.getElementById("speed{{key}}").style.background = "#de8181";
+    // }
+    // else if ("{{darksky[key]['wind_speed']}}" < 8 && "{{darksky[key]['wind_speed']}}" > 5){
+    //   document.getElementById("speed{{key}}").style.backgroundColor = "#d48a20";
+    // }
+    // else {
+    //   document.getElementById("speed{{key}}").style.background = "#82de81";
+    // }
+
+    if("{{darksky[key]['wind_speed']}}" > 8 ||
+            "{{darksky[key]['clouds']}}" > 25){
+      document.getElementById("hour{{key}}").style.backgroundColor = "#e32626";
     }
-    else if ("{{darksky[key]['wind_speed']}}" < 8 && "{{darksky[key]['wind_speed']}}" > 6 ||
-             "{{darksky[key]['clouds']}}" < 20 && "{{darksky[key]['clouds']}}" > 10){
-      document.getElementById("hour{{key}}").style.backgroundColor = "orange";
-      document.getElementById("speed{{key}}").style.background = "#82de81";
+    else if("{{darksky[key]['wind_speed']}}" < 8 &&
+            "{{darksky[key]['wind_speed']}}" > 5 ||
+            "{{darksky[key]['clouds']}}" < 25 &&
+            "{{darksky[key]['clouds']}}" > 10){
+      document.getElementById("hour{{key}}").style.backgroundColor = "#ff8c00";
     }
     else {
-      document.getElementById("hour{{key}}").style.backgroundColor = "#3ddb3c";
-
+      document.getElementById("hour{{key}}").style.backgroundColor = "#5ddc5c";
     }
+
+
   </script>
 {% endfor %}
 
@@ -115,7 +120,7 @@
   document.getElementById("cover{{current_hour}}").style.border = "2px solid cornflowerblue";
 </script>
 
-<!-- Scripts to colorize the cloud coverage tiles -->
+<!-- Script to colorize the cloud coverage tiles -->
 {% for key in darksky %}
   <script>
     if ("{{darksky[key]['clouds']}}" < 33) {

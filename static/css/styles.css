@@ -2,9 +2,10 @@ html, body {
     width: 100%;
     height: 100%;
     line-height: 1px;
+    background-color: #d7d7d7 !important;
 }
 .titles{
-    color: dimgray;
+    color: #7d7d7d;
     font-size: small;
 }
 
@@ -18,21 +19,43 @@ body {
     margin-top: 100px;
 }
 
-table, th, td {
+table {
     border: 1px solid #CCCCCC;
     border-collapse: collapse;
     text-align: center;
+    width: 500px;
+}
+td {
+    transition-duration: 0.1s;
+    text-align: center;
+    width: 50px;
+    background-color: #eaeaea;
+    border-radius: 5px;
+}
+td:hover{
+    transition-duration: 0.1s;
+    background-color: #a2b4e2 !important;
+}
+th {
+    height: 75px;
+    width: 50px;
 }
 
 .date {
     height: 90px;
-    width: 7%;
+    width: 50px;
     min-width: 50px;
     float: left;
     color: #FFFFFF;
     text-align: center;
     background: #537710;
     overflow: hidden;
+    margin: 10px 10px 10px 10px;
+}
+
+.date span {
+    margin-top: auto;
+    font-size: larger;
 }
 
 .location {
@@ -42,26 +65,16 @@ table, th, td {
 
 .topdata {
     height: 100px;
-    width: 100%;
-}
-
-td{
-    transition-duration: 0.2s;
-    text-align: center;
-    width: 50px;
-}
-
-td:hover{
-    transition-duration: 0.2s;
-    background-color: #d7d7d7 !important;
-}
-
-th{
-    width: 50px;
+    margin: 25px 25px 25px 25px;
 }
 
 .forecast{
-    margin: auto;
+    padding-top: 25px;
+}
+.forecast-wrapper {
+    margin:auto;
+    margin-top:50px;
+
 }
 
 .forecast_col{
@@ -69,6 +82,7 @@ th{
     line-height: 1;
     border-left-width: 0;
     border-right-width: 0;
+    background-color: #d7d7d7 !important;
 }
 
 table.forecast {
@@ -76,6 +90,7 @@ table.forecast {
     border-collapse: separate;
     border-spacing: 5px;
     border: 0;
+    margin: auto;
 
 }/*Setting the table width is important!*/
 table.forecast tr {
@@ -100,8 +115,16 @@ table.forecast tr {
     margin: auto;
 }
 h1 {
-    overflow: auto;
-    margin: 10px 10px 10px 10px;
+    overflow: hidden;
+    float: left;
+    padding: 10px 10px 10px 10px;
+    text-align: center;
+    margin-bottom: 0px;
+}
+
+.btn-group{
+    margin: auto;
+    padding: 10px;
 }
 
 
